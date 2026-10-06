@@ -111,6 +111,51 @@ impl FilePacket {
             data,
         })
     }
+
+    /// Serializes this packet into its FQ1 wire protocol representation.
+    ///
+    /// Complexity: O(M) where M is the byte length of data and filename.
+    #[must_use]
+    pub fn serialize(&self) -> String {
+        format!(
+            "FQ1|{}|{}|{}|{}|{}|{}",
+            STANDARD.encode(self.filename.as_bytes()),
+            self.sha256,
+            self.part,
+            self.parts,
+            self.data.len(),
+            STANDARD.encode(&self.data)
+        )
+    }
+
+    /// Splits input file bytes into a sequence of FQ1 packets.
+    ///
+    /// Complexity: O(N) where N is the total byte size of data.
+    #[must_use]
+    pub fn create_packets(filename: &str, data: &[u8], chunk_size: usize) -> Vec<Self> {
+        let chunk_size = chunk_size.max(64);
+        let sha256 = format!("{:x}", Sha256::digest(data));
+        if data.is_empty() {
+            return vec![Self {
+                filename: filename.to_owned(),
+                sha256,
+                part: 1,
+                parts: 1,
+                data: Vec::new(),
+            }];
+        }
+        let total_parts = data.len().div_ceil(chunk_size);
+        data.chunks(chunk_size)
+            .enumerate()
+            .map(|(index, chunk)| Self {
+                filename: filename.to_owned(),
+                sha256: sha256.clone(),
+                part: index + 1,
+                parts: total_parts,
+                data: chunk.to_vec(),
+            })
+            .collect()
+    }
 }
 
 #[derive(Debug)]
@@ -125,6 +170,7 @@ pub struct FileAssembly {
 }
 
 impl FileAssembly {
+    #[must_use]
     pub fn new(packet: &FilePacket) -> Self {
         Self {
             filename: packet.filename.clone(),
@@ -154,15 +200,18 @@ impl FileAssembly {
         true
     }
 
+    #[must_use]
     pub fn received_parts(&self) -> usize {
         self.chunks.len()
     }
 
+    #[must_use]
     pub fn is_complete(&self) -> bool {
         self.recovered.is_some()
     }
 
     /// Best-effort file type detection from recovered bytes, then the filename extension.
+    #[must_use]
     pub fn file_type(&self) -> String {
         if let Some(data) = &self.recovered {
             if data.starts_with(b"7z\xBC\xAF\x27\x1C") {
@@ -247,5 +296,20 @@ mod tests {
         assert!(assembly.insert(first));
         assert!(assembly.insert(second));
         assert_eq!(assembly.recovered.as_deref(), Some(&b"hello world"[..]));
+    }
+
+    #[test]
+    fn creates_and_recovers_packets_roundtrip() {
+        let original_data = b"Testing roundtrip chunking and reassembly for the Rust encoder!";
+        let packets = FilePacket::create_packets("test_file.txt", original_data, 16);
+        assert!(!packets.is_empty());
+        let mut assembly = FileAssembly::new(&packets[0]);
+        for pkt in packets {
+            let serialized = pkt.serialize();
+            let parsed = FilePacket::parse(&serialized).expect("parse serialized packet");
+            assert!(assembly.insert(parsed));
+        }
+        assert!(assembly.is_complete());
+        assert_eq!(assembly.recovered.as_deref(), Some(&original_data[..]));
     }
 }

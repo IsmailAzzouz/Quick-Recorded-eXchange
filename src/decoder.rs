@@ -32,6 +32,7 @@ impl Default for ScanSettings {
 }
 
 impl ScanSettings {
+    #[must_use]
     pub fn exhaustive() -> Self {
         Self {
             exhaustive: true,

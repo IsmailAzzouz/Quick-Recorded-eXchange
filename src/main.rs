@@ -1,10 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod app;
-mod decoder;
-mod payload;
-mod video;
-mod zbar;
+use qr_video_extractor::app::QrExtractorApp;
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
@@ -14,6 +10,6 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "QR Video Extractor",
         options,
-        Box::new(|cc| Ok(Box::new(app::QrExtractorApp::new(cc)))),
+        Box::new(|cc| Ok(Box::new(QrExtractorApp::new(cc)))),
     )
 }

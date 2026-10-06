@@ -28,6 +28,7 @@ pub struct QrExtractorApp {
 }
 
 impl QrExtractorApp {
+    #[must_use]
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
             video_path: None,

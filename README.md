@@ -1,13 +1,14 @@
-# QR Video Extractor
+# Quick Recorded eXchange (QR Video Extractor & Encoder)
 
-Fast, native desktop application for recovering large files transferred through high-density QR code video streams (1080p, 4K, 60fps+).
+Fast, native desktop suite in Rust for transferring large files through high-density QR code video streams (1080p, 4K, 60fps+).
 
-Powered by Rust, `eframe` (`egui`), multi-threaded ZBar scanning, and FFmpeg streaming.
+Includes both a high-throughput **Decoder / Extractor** and a versatile **Encoder / Broadcaster** supporting screen playback and MP4 video generation.
 
 ---
 
 ## Features
 
+### Extractor (Decoder)
 - **High-Throughput Parallel QR Detection**: Distributes frames across CPU worker threads utilizing direct C-bindings to ZBar.
 - **Low Memory Streaming Pipeline**: Streams grayscale frames directly from FFmpeg pipes into a bounded queue with automatic back-pressure, avoiding storing raw frames in memory.
 - **Adaptive Frame Sampling**: Automatically adapts scan stride to video frame rate while skipping visually identical static frames.
@@ -15,6 +16,12 @@ Powered by Rust, `eframe` (`egui`), multi-threaded ZBar scanning, and FFmpeg str
 - **Automatic Reassembly & Verification**: Chunks are assembled strictly according to protocol metadata and verified against the declared SHA-256 digest before writing to disk.
 - **Safe Output Handling**: Automatically detects file types and writes recovered files into a `Recovered from QR` folder beside the source video, appending incrementing indices if files already exist.
 - **Responsive GUI**: Clean desktop interface supporting drag-and-drop, real-time recovery progress, live file cards, and one-click cancellation.
+
+### Encoder (Broadcaster & Video Generator)
+- **Direct Screen Broadcast**: Cycles through generated QR codes in real-time in an interactive GUI player with Play/Pause, single-step navigation, scrub slider, and dynamic FPS control.
+- **FFmpeg Video Export**: Streams crisp QR frames directly into FFmpeg to generate standard H.264 MP4 videos (1080p, 720p, 4K) with configurable frame holds for resilient camera capture.
+- **Configurable FQ1 Parameters**: Customize chunk size (128 to 1024 bytes), error correction levels (Low, Medium, Quartile, High), and frame repetition rates.
+- **Dual GUI / Headless CLI Mode**: Run interactively with egui or script automated video exports directly from the command line.
 
 ---
 
@@ -64,8 +71,8 @@ ffmpeg -version
 ffprobe -version
 ```
 
-### 2. ZBar Shared Library
-The application dynamically links to ZBar at runtime:
+### 2. ZBar Shared Library (for Extractor)
+The extractor dynamically links to ZBar at runtime:
 
 - **Windows**:
   - Place `libzbar-64.dll` (and `libiconv.dll` if needed) in the same directory as the executable or project root, **OR**
@@ -84,35 +91,55 @@ The application dynamically links to ZBar at runtime:
 
 ## Installation & Running
 
-### From Source
-
 Ensure you have the Rust toolchain installed (Rust 1.85+ recommended):
 
 ```bash
 # Clone the repository
 git clone https://github.com/IsmailAzzouz/Quick-Recorded-eXchange.git
 cd Quick-Recorded-eXchange
-
-# Run the optimized application
-cargo run --release
 ```
 
----
+### 1. Running the Extractor (Decoder)
 
-## Usage
+Launch the decoder GUI application:
 
-1. Launch the application.
-2. Drag and drop any video file into the window, or click **Choose video**.
-3. Recovery starts automatically:
-   - File cards will appear as soon as the first chunk is detected.
-   - Progress bars show chunk collection status and verification state.
-4. Once all parts of a file are recovered and validated against its SHA-256 checksum, it is automatically written to `Recovered from QR/` next to the source video.
+```bash
+cargo run --release
+# Or explicitly:
+cargo run --bin qr-video-extractor --release
+```
+
+- Drag and drop any video file into the window, or click **Choose video**.
+- Recovery starts automatically. Files are verified against their SHA-256 digest and saved to `Recovered from QR/` next to the video.
+
+### 2. Running the Encoder (Broadcaster & Video Generator)
+
+#### Graphical User Interface (GUI):
+
+```bash
+cargo run --bin qr-video-encoder --release
+```
+
+- Drag and drop or select any file to encode.
+- **Screen Broadcast**: Play the QR stream directly on your monitor with playback controls (Space/Play/Pause, Prev/Next, scrubber, FPS slider).
+- **Video Export**: Click **Export to Video** to render a high-quality H.264 MP4 file.
+
+#### Command-Line Interface (CLI):
+
+```bash
+cargo run --bin qr-video-encoder --release -- -i <input_file> [-o <output.mp4>] [-c <chunk_bytes>] [--fps <fps>] [--hold <repeat>]
+```
+
+Example:
+```bash
+cargo run --bin qr-video-encoder --release -- -i archive.zip -o transfer.mp4 -c 512 --fps 15 --hold 2
+```
 
 ---
 
 ## Protocol Specification: FQ1 Format
 
-The application parses QR symbols formatted with the `FQ1` transfer wire standard:
+The suite uses the `FQ1` transfer wire standard:
 
 ```text
 FQ1|<base64_filename>|<sha256>|<part>|<parts>|<part_bytes>|<base64_data>
@@ -143,7 +170,7 @@ FQ1|<base64_filename>|<sha256>|<part>|<parts>|<part_bytes>|<base64_data>
 
 ```bash
 # Check code without building
-cargo check
+cargo check --all-targets
 
 # Run linter
 cargo clippy --all-targets
@@ -151,7 +178,7 @@ cargo clippy --all-targets
 # Check code formatting
 cargo fmt --check
 
-# Run unit tests
+# Run all unit and integration tests
 cargo test
 ```
 

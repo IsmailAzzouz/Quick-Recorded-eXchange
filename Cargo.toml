@@ -21,13 +21,25 @@ serde_json = "1"
 sha2 = "0.10"
 thiserror = "2"
 libloading = "0.8"
-
-[dev-dependencies]
 qrcodegen = "1.8"
+
+[lib]
+name = "qr_video_extractor"
+path = "src/lib.rs"
+
+[[bin]]
+name = "qr-video-extractor"
+path = "src/main.rs"
+
+[[bin]]
+name = "qr-video-encoder"
+path = "src/bin/encoder.rs"
 
 [lints.rust]
 unsafe_code = "warn"
 
 [lints.clippy]
-all = "warn"
-pedantic = "warn"
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
