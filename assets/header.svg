@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" role="img" aria-labelledby="title description">
+  <title id="title">Quick Recorded eXchange</title>
+  <desc id="description">A restrained white QRX monogram and wordmark on black, with the subtitle High-Throughput Optical Air-Gap.</desc>
+  <defs>
+    <linearGradient id="mark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d6d6d6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="400" fill="#050505"/>
+
+  <!-- Four open corners frame the work without enclosing it. -->
+  <g fill="none" stroke="#6d6d6d" stroke-width="1.5">
+    <path d="M 532 93 V 67 H 558"/>
+    <path d="M 642 67 H 668 V 93"/>
+    <path d="M 532 151 V 177 H 558"/>
+    <path d="M 642 177 H 668 V 151"/>
+  </g>
+
+  <!-- QRX optical monogram cut from deliberate geometric strokes. -->
+  <g fill="url(#mark)">
+    <path d="M 566 86 H 579 V 158 H 566 Z"/>
+    <path d="M 579 86 H 634 L 621 99 H 579 Z"/>
+    <path d="M 621 99 H 634 V 140 H 621 Z"/>
+    <path d="M 579 145 H 608 V 158 H 579 Z"/>
+    <path d="M 593 115 H 607 V 129 H 593 Z"/>
+    <path d="M 617 127 L 647 157 L 638 166 L 608 136 Z"/>
+  </g>
+
+  <text x="600" y="276" text-anchor="middle" fill="#f4f4f4"
+        font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="400"
+        letter-spacing="12">QUICK RECORDED eXCHANGE</text>
+  <text x="600" y="318" text-anchor="middle" fill="#cfcfcf"
+        font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400"
+        letter-spacing="8">HIGH-THROUGHPUT OPTICAL AIR-GAP</text>
+</svg>
