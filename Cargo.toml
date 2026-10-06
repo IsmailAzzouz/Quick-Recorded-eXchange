@@ -1,0 +1,33 @@
+[package]
+name = "qr-video-extractor"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "High-throughput QR payload extraction from video"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/IsmailAzzouz/Quick-Recorded-eXchange"
+keywords = ["qr-code", "video-processing", "zbar", "ffmpeg", "egui"]
+categories = ["multimedia::video", "gui"]
+
+[dependencies]
+base64 = "0.22"
+crossbeam-channel = "0.5"
+eframe = { version = "0.33", default-features = true }
+num_cpus = "1.17"
+rfd = "0.17"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+libloading = "0.8"
+
+[dev-dependencies]
+qrcodegen = "1.8"
+
+[lints.rust]
+unsafe_code = "warn"
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"
