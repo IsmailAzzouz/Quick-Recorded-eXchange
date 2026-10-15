@@ -159,6 +159,12 @@ The extractor dynamically loads ZBar at runtime:
 
 ## Installation & Build
 
+### Pre-Compiled Binaries
+
+Pre-compiled standalone archives for **Windows (x86_64)**, **Linux (x86_64)**, and **macOS (Apple Silicon)** are available on [GitHub Releases](https://github.com/IsmailAzzouz/Quick-Recorded-eXchange/releases).
+
+### Build from Source
+
 Ensure you have a recent Rust toolchain installed (Rust 1.85+ recommended):
 
 ```bash

@@ -31,3 +31,10 @@ desktop.ini
 
 # Output directory created during recovery
 Recovered from QR/
+
+# Release and distribution packages
+dist/
+dist-packages/
+staging/
+*.tar.gz
+*.zip
