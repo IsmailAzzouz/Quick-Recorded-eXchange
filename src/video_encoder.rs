@@ -115,7 +115,7 @@ fn spawn_ffmpeg_child(
     output_path: &Path,
     settings: &VideoEncoderSettings,
 ) -> Result<Child, VideoEncoderError> {
-    Command::new("ffmpeg")
+    Command::new(crate::video::ffmpeg_binary())
         .args([
             "-y",
             "-hide_banner",
@@ -207,7 +207,7 @@ mod tests {
 
     #[test]
     fn full_encode_and_decode_cycle() {
-        if Command::new("ffmpeg").arg("-version").output().is_err() {
+        if Command::new(crate::video::ffmpeg_binary()).arg("-version").output().is_err() {
             return;
         }
         let test_data = b"Round-trip video encoding and extraction pipeline verification data!";

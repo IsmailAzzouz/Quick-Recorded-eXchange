@@ -159,9 +159,12 @@ The extractor dynamically loads ZBar at runtime:
 
 ## Installation & Build
 
-### Pre-Compiled Binaries
+### Pre-Compiled Binaries & Portable Edition
 
 Pre-compiled standalone archives for **Windows (x86_64)**, **Linux (x86_64)**, and **macOS (Apple Silicon)** are available on [GitHub Releases](https://github.com/IsmailAzzouz/Quick-Recorded-eXchange/releases).
+
+- **Windows Standalone Portable (`*-windows-x86_64-portable.zip`)**: Zero-installation bundle. Pre-packaged with co-located FFmpeg, FFprobe, and ZBar runtime DLLs (`libzbar-64.dll`, `libiconv.dll`). Simply extract anywhere and run immediately with no dependencies to install.
+- **Platform Binaries**: Compact archives for systems where FFmpeg and ZBar are installed via system package managers (`apt`, `brew`, `winget`).
 
 ### Build from Source
 

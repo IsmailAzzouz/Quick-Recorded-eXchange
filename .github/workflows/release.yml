@@ -84,6 +84,33 @@ jobs:
             tar -czvf "dist-packages/${PKG_NAME}.tar.gz" -C staging "${PKG_NAME}"
           fi
 
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            PORTABLE_NAME="quick-recorded-exchange-${TAG}-windows-x86_64-portable"
+            PORTABLE_DIR="staging/${PORTABLE_NAME}"
+            mkdir -p "${PORTABLE_DIR}"
+
+            cp "target/${{ matrix.target }}/release/qr-video-extractor.exe" "${PORTABLE_DIR}/"
+            cp "target/${{ matrix.target }}/release/qr-video-encoder.exe" "${PORTABLE_DIR}/"
+            cp README.md LICENSE "${PORTABLE_DIR}/"
+
+            # Bundle ZBar runtime DLLs
+            python -m pip install --quiet pyzbar
+            PYZBAR_DIR=$(python -c "import pyzbar, os; print(os.path.dirname(pyzbar.__file__))")
+            cp "$PYZBAR_DIR/libzbar-64.dll" "${PORTABLE_DIR}/"
+            cp "$PYZBAR_DIR/libiconv.dll" "${PORTABLE_DIR}/"
+
+            # Bundle standalone FFmpeg & FFprobe
+            curl -L --retry 3 -s -o ffmpeg.zip "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+            unzip -q ffmpeg.zip
+            FFMPEG_BIN=$(find . -maxdepth 2 -type d -name "bin" | head -n 1)
+            if [ -n "$FFMPEG_BIN" ] && [ -d "$FFMPEG_BIN" ]; then
+              cp "$FFMPEG_BIN/ffmpeg.exe" "${PORTABLE_DIR}/"
+              cp "$FFMPEG_BIN/ffprobe.exe" "${PORTABLE_DIR}/"
+            fi
+
+            tar -a -c -f "dist-packages/${PORTABLE_NAME}.zip" -C staging "${PORTABLE_NAME}"
+          fi
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

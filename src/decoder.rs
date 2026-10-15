@@ -190,7 +190,7 @@ mod tests {
 
     #[test]
     fn scans_a_real_ffmpeg_video() {
-        if Command::new("ffmpeg").arg("-version").output().is_err() {
+        if Command::new(crate::video::ffmpeg_binary()).arg("-version").output().is_err() {
             return; // FFmpeg is intentionally an external runtime dependency.
         }
         let text = "QR video pipeline smoke test";
@@ -203,7 +203,7 @@ mod tests {
         let mut pgm = format!("P5\n{} {}\n255\n", frame.width, frame.height).into_bytes();
         pgm.extend_from_slice(&frame.pixels);
         fs::write(&image_path, pgm).expect("write QR test image");
-        let encoded = Command::new("ffmpeg")
+        let encoded = Command::new(crate::video::ffmpeg_binary())
             .args([
                 "-hide_banner",
                 "-loglevel",

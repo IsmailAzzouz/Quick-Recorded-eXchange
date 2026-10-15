@@ -58,7 +58,7 @@ struct ProbeStream {
 }
 
 pub fn probe(path: &Path) -> Result<VideoInfo, VideoError> {
-    let output = Command::new("ffprobe")
+    let output = Command::new(ffprobe_binary())
         .args([
             "-v",
             "error",
@@ -120,7 +120,7 @@ pub fn spawn_frame_reader(
     let video_filter = format!(
         "{temporal_filter}scale={scan_width}:{scan_height}:flags=fast_bilinear,format=gray"
     );
-    let mut child = Command::new("ffmpeg")
+    let mut child = Command::new(ffmpeg_binary())
         .args(["-hide_banner", "-loglevel", "error", "-nostdin", "-i"])
         .arg(path)
         .args([
@@ -206,6 +206,42 @@ fn sampled_signature(pixels: &[u8]) -> u64 {
         .fold(FNV_OFFSET, |hash, byte| {
             (hash ^ u64::from(*byte)).wrapping_mul(FNV_PRIME)
         })
+}
+
+/// Returns the path to `ffmpeg`, prioritizing a co-located binary for portable bundles before checking `PATH`.
+#[must_use]
+pub fn ffmpeg_binary() -> PathBuf {
+    if let Ok(exe) = std::env::current_exe()
+        && let Some(parent) = exe.parent()
+    {
+        let candidate = if cfg!(windows) {
+            parent.join("ffmpeg.exe")
+        } else {
+            parent.join("ffmpeg")
+        };
+        if candidate.is_file() {
+            return candidate;
+        }
+    }
+    PathBuf::from("ffmpeg")
+}
+
+/// Returns the path to `ffprobe`, prioritizing a co-located binary for portable bundles before checking `PATH`.
+#[must_use]
+pub fn ffprobe_binary() -> PathBuf {
+    if let Ok(exe) = std::env::current_exe()
+        && let Some(parent) = exe.parent()
+    {
+        let candidate = if cfg!(windows) {
+            parent.join("ffprobe.exe")
+        } else {
+            parent.join("ffprobe")
+        };
+        if candidate.is_file() {
+            return candidate;
+        }
+    }
+    PathBuf::from("ffprobe")
 }
 
 #[cfg(test)]
