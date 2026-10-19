@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101724" />
+    <meta name="description" content="Offline-first file exchange over animated QR codes. No backend." />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>QRX — Browser optical exchange</title>
+  </head>
+  <body>
+    <header>
+      <h1>QRX <span>Browser</span></h1>
+      <p>Optical file transfer. Local files only. FQ1 wire compatible.</p>
+    </header>
+    <main>
+      <section class="panel" aria-labelledby="tx-heading">
+        <h2 id="tx-heading">Transmit</h2>
+        <label>File to send <input type="file" id="send-file" /></label>
+        <div class="settings">
+          <label>Chunk size <select id="chunk-size">
+            <option>128</option><option>256</option><option selected>384</option>
+            <option>512</option><option>768</option><option>1024</option>
+          </select></label>
+          <label>Error correction <select id="ecc">
+            <option value="0">Low</option><option value="1" selected>Medium</option>
+            <option value="2">Quartile</option><option value="3">High</option>
+          </select></label>
+          <label>Frames per second <input id="fps" type="number" min="1" max="30" value="10" /></label>
+        </div>
+        <canvas id="qr" width="720" height="720" aria-label="Outgoing QR code"></canvas>
+        <div class="actions">
+          <button id="play" disabled>Play</button>
+          <button id="prev" disabled>Previous</button>
+          <button id="next" disabled>Next</button>
+        </div>
+        <p id="tx-status" role="status">Select a file to generate QR frames.</p>
+      </section>
+      <section class="panel" aria-labelledby="rx-heading">
+        <h2 id="rx-heading">Receive</h2>
+        <p class="hint">Use a camera or select a recording supported by your browser.
+        Reconstructed data stays in this tab until you download it.</p>
+        <div class="actions">
+          <button id="camera">Start camera</button>
+          <button id="stop">Stop</button>
+          <button id="clear">Clear received files</button>
+        </div>
+        <label>Recorded video <input id="receive-file" type="file" accept="video/*" /></label>
+        <video id="incoming" playsinline muted controls></video>
+        <p id="rx-status" role="status">No capture active.</p>
+        <div id="received" aria-live="polite"></div>
+      </section>
+    </main>
+    <footer>Everything runs on-device • No QR payloads are sent to a server • Maximum 16 MiB per file</footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
