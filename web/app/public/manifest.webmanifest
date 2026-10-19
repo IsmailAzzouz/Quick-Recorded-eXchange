@@ -1,0 +1,10 @@
+{
+  "name": "Quick Recorded eXchange Web",
+  "short_name": "QRX Web",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "description": "Fully local browser optical file transfer over FQ1 QR codes"
+}

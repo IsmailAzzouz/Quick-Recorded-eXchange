@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T18:47:35.679002+00:00",
+  "title": "Design System: Quick Recorded eXchange",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "foreground": {
+        "role": "primary",
+        "displayName": "Near black",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Mid gray",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Light rule",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Light surface",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "Dark-mode secondary text",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Dark surface",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "qr-ink": {
+        "role": "neutral",
+        "displayName": "QR black",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Identity",
+        "purpose": "Compact QRX identity."
+      },
+      "headline": {
+        "displayName": "Task heading",
+        "purpose": "Current workspace heading; 28px on mobile."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Global base typography."
+      },
+      "label": {
+        "displayName": "Control label",
+        "purpose": "Ordinary buttons and compact controls."
+      },
+      "supporting": {
+        "displayName": "Supporting text",
+        "purpose": "Hints and operational guidance."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "switch-thumb",
+        "value": "transform 160ms cubic-bezier(.22,1,.36,1)",
+        "purpose": "Preference switch thumb only; removed for reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-desktop",
+        "value": "850px"
+      },
+      {
+        "name": "stacked-mobile",
+        "value": "650px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action or compact supporting action; square and reversible.",
+      "html": "<button class=\"ds-button-primary\">Create QR video</button>",
+      "css": ".ds-button-primary{font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:500;line-height:1.5;min-height:42px;padding:10px 16px;border:1px solid var(--foreground,#111);border-radius:0;background:var(--foreground,#111);color:var(--background,#fff);cursor:pointer}.ds-button-primary:hover:not(:disabled){background:var(--background,#fff);color:var(--foreground,#111);border-color:var(--foreground,#111)}.ds-button-primary:active:not(:disabled){background:var(--foreground,#111);color:var(--background,#fff)}.ds-button-primary:focus-visible{outline:2px solid var(--foreground,#111);outline-offset:4px}.ds-button-primary:disabled{opacity:.4;cursor:not-allowed}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Primary action or compact supporting action; square and reversible.",
+      "html": "<button class=\"ds-button-secondary\">Stop</button>",
+      "css": ".ds-button-secondary{font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:500;line-height:1.5;min-height:42px;padding:10px 16px;border:1px solid var(--line,#c5c5c5);border-radius:0;background:var(--background,#fff);color:var(--foreground,#111);cursor:pointer}.ds-button-secondary:hover:not(:disabled){background:var(--surface,#f4f4f4);color:var(--foreground,#111);border-color:var(--foreground,#111)}.ds-button-secondary:active:not(:disabled){background:var(--foreground,#111);color:var(--background,#fff)}.ds-button-secondary:focus-visible{outline:2px solid var(--foreground,#111);outline-offset:4px}.ds-button-secondary:disabled{opacity:.4;cursor:not-allowed}"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Underlined supporting action, used for clear and retry.",
+      "html": "<button class=\"ds-text\">Clear received files</button>",
+      "css": ".ds-text{font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:500;line-height:1.5;width:fit-content;min-height:30px;border:0;padding:2px 0;background:var(--background,#fff);color:var(--muted,#626262);font-size:12px;text-decoration:underline;text-underline-offset:4px;cursor:pointer}.ds-text:hover:not(:disabled){color:var(--foreground,#111)}.ds-text:focus-visible{outline:2px solid var(--foreground,#111);outline-offset:4px}.ds-text:disabled{opacity:.4;cursor:not-allowed}"
+    },
+    {
+      "name": "Number field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Native number field with associated label and export constraint.",
+      "html": "<label class=\"ds-field\">Frames per second<input type=\"number\" min=\"1\" max=\"30\" value=\"10\" aria-describedby=\"ds-fps-help\"><span id=\"ds-fps-help\">Video export uses up to 10 FPS for reliable scanning.</span></label>",
+      "css": ".ds-field{display:grid;gap:6px;font:13px/1.5 Helvetica,Arial,sans-serif;color:var(--foreground,#111)}.ds-field input{font:14px/1.5 Helvetica,Arial,sans-serif;width:100%;min-height:42px;padding:8px 10px;background:var(--background,#fff);color:var(--foreground,#111);border:1px solid var(--line,#c5c5c5);border-radius:0;font-variant-numeric:tabular-nums}.ds-field span{font-size:12px;line-height:1.65;color:var(--muted,#626262)}.ds-field input:focus-visible{outline:2px solid var(--foreground,#111);outline-offset:4px}"
+    },
+    {
+      "name": "Workspace navigation",
+      "kind": "nav",
+      "description": "One active tab; application logic provides keyboard selection and retained panels.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\" aria-label=\"File exchange mode\"><button role=\"tab\" aria-selected=\"true\">Encode</button><button role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Receive</button></div>",
+      "css": ".ds-tabs{display:flex;gap:32px;border-bottom:1px solid var(--line,#c5c5c5)}.ds-tabs button{font:400 17px/1.5 Helvetica,Arial,sans-serif;min-height:50px;padding:14px 0;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;background:transparent;color:var(--muted,#626262);cursor:pointer}.ds-tabs button[aria-selected=\"true\"]{border-bottom-color:var(--foreground,#111);color:var(--foreground,#111);font-weight:600}.ds-tabs button:hover{color:var(--foreground,#111)}.ds-tabs button:focus-visible{outline:2px solid var(--foreground,#111);outline-offset:4px}"
+    },
+    {
+      "name": "Preference switch",
+      "kind": "input",
+      "description": "Checkbox switch with the only animated treatment in the interface.",
+      "html": "<label class=\"ds-switch\"><input type=\"checkbox\" role=\"switch\"><span>Dark mode</span></label>",
+      "css": ".ds-switch{display:inline-flex;align-items:center;gap:9px;min-height:28px;cursor:pointer;font:13px/1.5 Helvetica,Arial,sans-serif;color:var(--foreground,#111);white-space:nowrap}.ds-switch input{appearance:none;margin:0;width:30px;height:18px;border:1px solid var(--muted,#626262);border-radius:12px;position:relative;background:transparent;cursor:pointer}.ds-switch input::after{content:\"\";position:absolute;top:3px;left:3px;width:10px;height:10px;border-radius:50%;background:var(--muted,#626262);transition:transform 160ms cubic-bezier(.22,1,.36,1)}.ds-switch input:checked{border-color:var(--foreground,#111);background:var(--foreground,#111)}.ds-switch input:checked::after{background:var(--background,#fff);transform:translateX(12px)}.ds-switch input:focus-visible{outline:2px solid var(--foreground,#111);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-switch input::after{transition:none}}@media(forced-colors:active){.ds-switch input{appearance:auto}.ds-switch input::after{display:none}}"
+    },
+    {
+      "name": "Empty QR preview",
+      "kind": "custom",
+      "refersTo": "preview",
+      "description": "Quiet square placeholder before the black-on-white QR artifact is ready.",
+      "html": "<div class=\"ds-preview\"><p>QR preview</p><span>Select a file to begin.</span></div>",
+      "css": ".ds-preview{display:flex;aspect-ratio:1;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:24px;text-align:center;border:1px solid var(--line,#c5c5c5);background:var(--surface,#f4f4f4);color:var(--foreground,#111);font-family:Helvetica,Arial,sans-serif}.ds-preview p{margin:0;font-size:20px;font-weight:400;letter-spacing:-.015em}.ds-preview span{font-size:13px;color:var(--muted,#626262)}"
+    },
+    {
+      "name": "Received file",
+      "kind": "card",
+      "description": "Flat result row with packet progress and a verified download action.",
+      "html": "<article class=\"ds-received\"><strong>example.txt</strong><p>3 / 3 packets · SHA-256 verified</p><progress max=\"3\" value=\"3\" aria-label=\"Packets received\"></progress><button>Download verified file</button></article>",
+      "css": ".ds-received{padding:20px 0;border-bottom:1px solid var(--line,#c5c5c5);overflow-wrap:anywhere;font-family:Helvetica,Arial,sans-serif;color:var(--foreground,#111)}.ds-received strong{font-size:15px;font-weight:600}.ds-received p{color:var(--muted,#626262);font-size:12px;margin:6px 0 0}.ds-received progress{appearance:none;width:100%;height:4px;display:block;border:0;background:var(--line,#c5c5c5);margin-top:14px;accent-color:var(--foreground,#111)}.ds-received progress::-webkit-progress-bar{background:var(--line,#c5c5c5)}.ds-received progress::-webkit-progress-value{background:var(--foreground,#111)}.ds-received progress::-moz-progress-bar{background:var(--foreground,#111)}.ds-received button{font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:500;line-height:1.5;min-height:42px;padding:10px 16px;margin-top:14px;border:1px solid var(--foreground,#111);border-radius:0;background:var(--background,#fff);color:var(--foreground,#111);cursor:pointer}.ds-received button:hover{background:var(--surface,#f4f4f4)}.ds-received button:active{background:var(--foreground,#111);color:var(--background,#fff)}.ds-received button:focus-visible{outline:2px solid var(--foreground,#111);outline-offset:4px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Swiss exchange workspace",
+    "overview": "A Swiss, minimalist workspace for optical file exchange. Black, white, neutral grays, local Helvetica, whitespace, and thin rules keep the file and its QR artifact central. The interface reverses cleanly between light and dark without changing the transfer pixels.\n\nOne workspace is visible at a time. Controls occupy a compact left rail; the output receives the larger right region. State remains in the tab when the user switches between Encode and Receive.",
+    "keyCharacteristics": [
+      "Reversible monochrome interface; invariant black-on-white QR output.",
+      "One visible task, retained in-tab work, direct status and recovery actions.",
+      "Asymmetric workspace, square controls, thin dividers, no decorative depth.",
+      "Local system typography and no external fonts or UI framework."
+    ],
+    "rules": [
+      {
+        "name": "The Transfer Pixels Rule",
+        "body": "Theme changes reverse interface roles only. QR modules remain pure black on white.",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat Surface Rule",
+        "body": "Use whitespace, thin rules, and surface tone to distinguish regions. Do not introduce shadows.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve both workspace DOM trees and their in-tab state when switching modes.",
+      "Do keep text status, visible focus, native field semantics, and explicit cancel/retry/save actions.",
+      "Do use the existing local Helvetica/Arial stack and tabular numerals for transfer values.",
+      "Do describe export as using up to 10 FPS; the playback input can accept 1–30 FPS."
+    ],
+    "donts": [
+      "Don't reintroduce the rejected green palette, decorative cards, or downloaded fonts.",
+      "Don't invert QR pixels in dark mode or add decorative motion.",
+      "Don't hide progress or remove the persistent Save video alternative after export."
+    ]
+  }
+}

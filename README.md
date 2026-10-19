@@ -31,6 +31,11 @@
 
 ## Overview
 
+For the fully client-side **browser MVP**, see [web/README.md](web/README.md).
+It encodes files into QR video and decodes recordings using Rust/WASM, with a
+static-only LAN server, cached assets, and offline support on trusted HTTPS or
+localhost. No file uploads or server-side processing are involved.
+
 **Quick Recorded eXchange (QRX)** provides an end-to-end, high-throughput optical bridge that encodes arbitrary digital payloads into dynamic video streams and extracts them back with bit-perfect cryptographic verification.
 
 Whether moving data into physically isolated air-gapped workstations or conducting secure optical data exfiltration audits, QRX avoids USB drives, network interfaces, and RF transceivers entirely.

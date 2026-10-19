@@ -1,0 +1,39 @@
+name: WebAssembly browser MVP
+
+on:
+  push:
+    paths:
+      - "src/payload.rs"
+      - "web/**"
+      - ".github/workflows/web.yml"
+  pull_request:
+    paths:
+      - "src/payload.rs"
+      - "web/**"
+      - ".github/workflows/web.yml"
+
+jobs:
+  browser-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Rust unit tests (shared FQ1 protocol)
+        run: cargo test --manifest-path web/crate/Cargo.toml --locked
+      - name: Check WASM target
+        run: cargo check --manifest-path web/crate/Cargo.toml --target wasm32-unknown-unknown --locked
+      - uses: jetli/wasm-pack-action@v0.4.0
+      - name: Install web dependencies
+        run: npm ci --prefix web/app
+      - name: Build static browser client
+        run: npm run build --prefix web/app
+      - name: Install test browser
+        working-directory: web/app
+        run: npx playwright install --with-deps chromium
+      - name: Browser roundtrip, LAN, and offline tests
+        run: npm test --prefix web/app

@@ -193,9 +193,12 @@ impl FileAssembly {
                 Some("Inconsistent FQ1 metadata for this transfer".to_owned());
             return false;
         }
-        if self.chunks.insert(packet.part, packet.data).is_some() {
+        // Reject malformed indices and duplicates without replacing previously
+        // accepted chunks. Replacing duplicates could corrupt an in-flight transfer.
+        if packet.part == 0 || packet.part > self.parts || self.chunks.contains_key(&packet.part) {
             return false;
         }
+        self.chunks.insert(packet.part, packet.data);
         self.try_recover();
         true
     }
@@ -203,6 +206,11 @@ impl FileAssembly {
     #[must_use]
     pub fn received_parts(&self) -> usize {
         self.chunks.len()
+    }
+
+    #[must_use]
+    pub fn has_part(&self, part: usize) -> bool {
+        self.chunks.contains_key(&part)
     }
 
     #[must_use]
@@ -296,6 +304,19 @@ mod tests {
         assert!(assembly.insert(first));
         assert!(assembly.insert(second));
         assert_eq!(assembly.recovered.as_deref(), Some(&b"hello world"[..]));
+    }
+
+    #[test]
+    fn duplicate_packet_does_not_replace_original_chunk() {
+        let data = vec![42; 256];
+        let packets = FilePacket::create_packets("test.bin", &data, 128);
+        let mut assembly = FileAssembly::new(&packets[0]);
+        let mut duplicate = packets[0].clone();
+        duplicate.data = b"corrupted".to_vec();
+        assert!(assembly.insert(packets[0].clone()));
+        assert!(!assembly.insert(duplicate));
+        assert!(assembly.insert(packets[1].clone()));
+        assert_eq!(assembly.recovered.as_deref(), Some(data.as_slice()));
     }
 
     #[test]
