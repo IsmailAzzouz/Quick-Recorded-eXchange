@@ -209,6 +209,11 @@ impl FileAssembly {
     }
 
     #[must_use]
+    pub fn has_part(&self, part: usize) -> bool {
+        self.chunks.contains_key(&part)
+    }
+
+    #[must_use]
     pub fn is_complete(&self) -> bool {
         self.recovered.is_some()
     }
@@ -301,16 +306,17 @@ mod tests {
         assert_eq!(assembly.recovered.as_deref(), Some(&b"hello world"[..]));
     }
 
-
     #[test]
     fn duplicate_packet_does_not_replace_original_chunk() {
-        let packets = FilePacket::create_packets("test.bin", b"original", 128);
+        let data = vec![42; 256];
+        let packets = FilePacket::create_packets("test.bin", &data, 128);
         let mut assembly = FileAssembly::new(&packets[0]);
         let mut duplicate = packets[0].clone();
         duplicate.data = b"corrupted".to_vec();
         assert!(assembly.insert(packets[0].clone()));
         assert!(!assembly.insert(duplicate));
-        assert_eq!(assembly.recovered.as_deref(), Some(&b"original"[..]));
+        assert!(assembly.insert(packets[1].clone()));
+        assert_eq!(assembly.recovered.as_deref(), Some(data.as_slice()));
     }
 
     #[test]

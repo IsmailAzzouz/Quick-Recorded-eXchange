@@ -3,55 +3,67 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#101724" />
-    <meta name="description" content="Offline-first file exchange over animated QR codes. No backend." />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Encode files into QR video and recover them entirely on your device." />
+    <link rel="manifest" href="./manifest.webmanifest" />
     <title>QRX — Browser optical exchange</title>
   </head>
   <body>
-    <header>
-      <h1>QRX <span>Browser</span></h1>
-      <p>Optical file transfer. Local files only. FQ1 wire compatible.</p>
-    </header>
-    <main>
-      <section class="panel" aria-labelledby="tx-heading">
-        <h2 id="tx-heading">Transmit</h2>
-        <label>File to send <input type="file" id="send-file" /></label>
-        <div class="settings">
-          <label>Chunk size <select id="chunk-size">
-            <option>128</option><option>256</option><option selected>384</option>
-            <option>512</option><option>768</option><option>1024</option>
-          </select></label>
-          <label>Error correction <select id="ecc">
-            <option value="0">Low</option><option value="1" selected>Medium</option>
-            <option value="2">Quartile</option><option value="3">High</option>
-          </select></label>
-          <label>Frames per second <input id="fps" type="number" min="1" max="30" value="10" /></label>
+    <div class="app">
+      <header class="app-header">
+        <div class="identity"><h1>QRX</h1><p>Quick Recorded eXchange</p></div>
+        <div class="preferences">
+          <label class="switch"><input id="dark-mode" type="checkbox" role="switch" /><span>Dark mode</span></label>
+          <div class="screen-control"><div class="wake-controls"><label class="switch"><input id="keep-awake" type="checkbox" role="switch" aria-describedby="wake-status" /><span>Keep screen on</span></label><button id="wake-retry" class="button-text" type="button" hidden>Retry keep screen on</button></div><p id="wake-status" role="status">Screen follows your device settings.</p></div>
         </div>
-        <canvas id="qr" width="720" height="720" aria-label="Outgoing QR code"></canvas>
-        <div class="actions">
-          <button id="play" disabled>Play</button>
-          <button id="prev" disabled>Previous</button>
-          <button id="next" disabled>Next</button>
-        </div>
-        <p id="tx-status" role="status">Select a file to generate QR frames.</p>
-      </section>
-      <section class="panel" aria-labelledby="rx-heading">
-        <h2 id="rx-heading">Receive</h2>
-        <p class="hint">Use a camera or select a recording supported by your browser.
-        Reconstructed data stays in this tab until you download it.</p>
-        <div class="actions">
-          <button id="camera">Start camera</button>
-          <button id="stop">Stop</button>
-          <button id="clear">Clear received files</button>
-        </div>
-        <label>Recorded video <input id="receive-file" type="file" accept="video/*" /></label>
-        <video id="incoming" playsinline muted controls></video>
-        <p id="rx-status" role="status">No capture active.</p>
-        <div id="received" aria-live="polite"></div>
-      </section>
-    </main>
-    <footer>Everything runs on-device • No QR payloads are sent to a server • Maximum 16 MiB per file</footer>
+      </header>
+
+      <div class="workspace-tabs" role="tablist" aria-label="File exchange mode">
+        <button type="button" role="tab" id="mode-encode" data-mode="encode" aria-selected="true" aria-controls="encode-panel" tabindex="0">Encode</button>
+        <button type="button" role="tab" id="mode-receive" data-mode="receive" aria-selected="false" aria-controls="receive-panel" tabindex="-1">Receive</button>
+      </div>
+
+      <main>
+        <section id="encode-panel" role="tabpanel" aria-labelledby="mode-encode">
+          <header class="section-heading"><h2>Encode a file.</h2><p>Create a QR video or play the frames for another device.</p></header>
+          <div class="workbench">
+            <div class="controls">
+              <label class="file-field">File to send<input type="file" id="send-file" disabled /><span class="hint">Maximum 16 MiB. Files stay in your browser.</span></label>
+              <details class="encoding-settings"><summary>Encoding settings</summary><div class="settings">
+                <label>Chunk size<select id="chunk-size"><option value="128">128 bytes</option><option value="256">256 bytes</option><option value="384" selected>384 bytes</option><option value="512">512 bytes</option><option value="768">768 bytes</option><option value="1024">1024 bytes</option></select></label>
+                <label>Error correction<select id="ecc"><option value="0">Low</option><option value="1" selected>Medium</option><option value="2">Quartile</option><option value="3">High</option></select></label>
+                <label>Frames per second<input id="fps" type="number" min="1" max="30" value="10" aria-describedby="fps-help" /><span id="fps-help" class="hint">Video export uses up to 10 FPS for reliable scanning.</span></label>
+              </div></details>
+              <div class="export-actions"><button id="export" class="button-primary" disabled>Create QR video</button><button id="cancel-export" hidden>Cancel export</button></div>
+              <p id="export-estimate" class="hint">Select a file to create its video.</p>
+              <div id="video-ready" class="video-ready" hidden><p>Video ready.</p><a id="video-download" class="button-primary download-link" download>Save video</a><p class="hint">If the automatic download did not start, use Save video.</p></div>
+              <p class="hint export-help">Keep this tab open until the video is ready. You can switch modes while it is created.</p>
+            </div>
+            <div class="output">
+              <div id="tx-preview" class="preview qr-preview" data-ready="false"><canvas id="qr" width="720" height="720" aria-label="Outgoing QR code"></canvas><div class="preview-empty"><p>QR preview</p><span>Select a file to begin.</span></div></div>
+              <div class="playback-actions"><button id="play" disabled>Play</button><button id="prev" class="button-icon" aria-label="Previous" title="Previous frame" disabled><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button id="next" class="button-icon" aria-label="Next" title="Next frame" disabled><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m8 5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+              <p id="tx-status" class="transfer-status" role="status">Select a file to generate QR frames.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="receive-panel" role="tabpanel" aria-labelledby="mode-receive" hidden>
+          <header class="section-heading"><h2>Receive a file.</h2><p>Open a QR recording or scan another device with your camera.</p></header>
+          <div class="workbench">
+            <div class="controls">
+              <label class="file-field">Recorded video<input id="receive-file" type="file" accept="video/*" disabled /></label>
+              <div class="capture-actions"><button id="camera" class="button-primary" disabled>Start camera</button><button id="stop" disabled>Stop</button></div>
+              <p id="rx-status" class="transfer-status" role="status">No capture active.</p>
+              <p id="camera-hint" class="hint"></p>
+              <p class="hint">Download appears when the recovered file passes SHA-256 verification.</p>
+              <button id="clear" class="button-text" disabled>Clear received files</button>
+            </div>
+            <div class="output"><div id="rx-preview" class="preview video-preview" data-ready="false"><video id="incoming" playsinline muted controls></video><div class="preview-empty"><p>Video preview</p><span>Open a recording or start your camera.</span></div></div><div id="received" aria-live="polite"></div></div>
+          </div>
+        </section>
+      </main>
+      <footer><p id="cache-status" role="status">Loading the local codec…</p><p>Processed on this device.</p></footer>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

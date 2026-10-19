@@ -15,6 +15,8 @@ const MAX_FILE_BYTES: usize = 16 * 1024 * 1024;
 const MAX_PARTS: usize = 65_536;
 const MAX_TRANSFERS: usize = 4;
 const MAX_QR_CHUNK_BYTES: usize = 1024;
+const MAX_FILENAME_BYTES: usize = 255;
+const MAX_PACKET_TEXT_BYTES: usize = 4096;
 
 fn js_error(message: impl ToString) -> JsValue {
     JsValue::from_str(&message.to_string())
@@ -22,19 +24,25 @@ fn js_error(message: impl ToString) -> JsValue {
 
 /// Generate wire-compatible FQ1 packet strings from an in-memory file.
 #[wasm_bindgen]
-pub fn packets_from_file(filename: &str, bytes: &[u8], chunk_size: usize) -> Result<Array, JsValue> {
+pub fn packets_from_file(
+    filename: &str,
+    bytes: &[u8],
+    chunk_size: usize,
+) -> Result<Array, JsValue> {
     if bytes.len() > MAX_FILE_BYTES {
         return Err(js_error("File exceeds the 16 MiB browser MVP limit"));
     }
     if !(128..=MAX_QR_CHUNK_BYTES).contains(&chunk_size) {
         return Err(js_error("Chunk size must be between 128 and 1024 bytes"));
     }
-
-    let packets = FilePacket::create_packets(filename, bytes, chunk_size);
-    if packets.len() > MAX_PARTS {
+    if filename.is_empty() || filename.len() > MAX_FILENAME_BYTES {
+        return Err(js_error("Filename must contain 1–255 UTF-8 bytes"));
+    }
+    if bytes.len().div_ceil(chunk_size) > MAX_PARTS {
         return Err(js_error("Too many QR frames; increase the chunk size"));
     }
 
+    let packets = FilePacket::create_packets(filename, bytes, chunk_size);
     let result = Array::new();
     for packet in &packets {
         result.push(&JsValue::from_str(&packet.serialize()));
@@ -103,39 +111,7 @@ impl QrxReceiver {
 
     /// Returns true for a newly accepted packet; false for non-FQ1 or duplicates.
     pub fn ingest(&mut self, text: &str) -> Result<bool, JsValue> {
-        if !text.starts_with("FQ1|") {
-            return Ok(false);
-        }
-        let packet = FilePacket::parse(text).map_err(js_error)?;
-        if packet.parts > MAX_PARTS || packet.data.len() > MAX_QR_CHUNK_BYTES {
-            return Err(js_error("FQ1 packet exceeds browser resource limits"));
-        }
-
-        let key = format!("{}:{}", packet.filename, packet.sha256);
-        if !self.assemblies.contains_key(&key) {
-            if self.keys.len() == MAX_TRANSFERS {
-                return Err(js_error("At most four transfers can be buffered"));
-            }
-            self.keys.push(key.clone());
-            self.assemblies
-                .insert(key.clone(), FileAssembly::new(&packet));
-            self.received_bytes.insert(key.clone(), 0);
-        }
-
-        let previous_size = self.received_bytes[&key];
-        if previous_size.saturating_add(packet.data.len()) > MAX_FILE_BYTES {
-            return Err(js_error("Transfer exceeds the 16 MiB browser MVP limit"));
-        }
-        let size = packet.data.len();
-        let accepted = self
-            .assemblies
-            .get_mut(&key)
-            .expect("assembly inserted above")
-            .insert(packet);
-        if accepted {
-            *self.received_bytes.get_mut(&key).expect("size entry exists") += size;
-        }
-        Ok(accepted)
+        self.ingest_text(text).map_err(js_error)
     }
 
     pub fn file_count(&self) -> usize {
@@ -143,11 +119,13 @@ impl QrxReceiver {
     }
 
     pub fn filename(&self, index: usize) -> String {
-        self.get(index).map_or_else(String::new, |file| file.filename.clone())
+        self.get(index)
+            .map_or_else(String::new, |file| file.filename.clone())
     }
 
     pub fn digest(&self, index: usize) -> String {
-        self.get(index).map_or_else(String::new, |file| file.sha256.clone())
+        self.get(index)
+            .map_or_else(String::new, |file| file.sha256.clone())
     }
 
     pub fn total_parts(&self, index: usize) -> usize {
@@ -178,8 +156,65 @@ impl QrxReceiver {
 }
 
 impl QrxReceiver {
+    // Keep validation testable without a browser or wasm-bindgen's JS error ABI.
+    fn ingest_text(&mut self, text: &str) -> Result<bool, String> {
+        if !text.starts_with("FQ1|") {
+            return Ok(false);
+        }
+        if text.len() > MAX_PACKET_TEXT_BYTES {
+            return Err("FQ1 packet exceeds browser resource limits".into());
+        }
+        let packet = FilePacket::parse(text).map_err(|err| err.to_string())?;
+        if packet.parts > MAX_PARTS
+            || packet.data.len() > MAX_QR_CHUNK_BYTES
+            || packet.filename.is_empty()
+            || packet.filename.len() > MAX_FILENAME_BYTES
+        {
+            return Err("FQ1 packet exceeds browser resource limits".into());
+        }
+
+        let key = format!("{}:{}", packet.filename, packet.sha256);
+        if !self.assemblies.contains_key(&key) {
+            if self.keys.len() == MAX_TRANSFERS {
+                return Err("At most four transfers can be buffered".into());
+            }
+            self.keys.push(key.clone());
+            self.assemblies
+                .insert(key.clone(), FileAssembly::new(&packet));
+            self.received_bytes.insert(key.clone(), 0);
+        }
+
+        let assembly = &self.assemblies[&key];
+        if assembly.parts != packet.parts {
+            return Err("Inconsistent FQ1 metadata for this transfer".into());
+        }
+        // Duplicates must not consume the byte budget, even at the file limit.
+        if assembly.has_part(packet.part) {
+            return Ok(false);
+        }
+        let previous_size = self.received_bytes[&key];
+        if previous_size.saturating_add(packet.data.len()) > MAX_FILE_BYTES {
+            return Err("Transfer exceeds the 16 MiB browser MVP limit".into());
+        }
+        let size = packet.data.len();
+        let accepted = self
+            .assemblies
+            .get_mut(&key)
+            .expect("assembly inserted above")
+            .insert(packet);
+        if accepted {
+            *self
+                .received_bytes
+                .get_mut(&key)
+                .expect("size entry exists") += size;
+        }
+        Ok(accepted)
+    }
+
     fn get(&self, index: usize) -> Option<&FileAssembly> {
-        self.keys.get(index).and_then(|key| self.assemblies.get(key))
+        self.keys
+            .get(index)
+            .and_then(|key| self.assemblies.get(key))
     }
 }
 
@@ -207,5 +242,62 @@ mod tests {
         assert!(assembly.insert(packets.remove(0)));
         assert!(!assembly.is_complete());
         assert!(assembly.verification_error.is_some());
+    }
+
+    #[test]
+    fn receiver_accepts_reordered_packets_and_ignores_duplicates() {
+        let data: Vec<u8> = (0..1025).map(|value| (value % 256) as u8).collect();
+        let packets = FilePacket::create_packets("résumé.bin", &data, 128);
+        let mut receiver = QrxReceiver::new();
+        for packet in packets.into_iter().rev() {
+            assert!(receiver.ingest_text(&packet.serialize()).unwrap());
+            assert!(!receiver.ingest_text(&packet.serialize()).unwrap());
+        }
+        assert_eq!(receiver.file_count(), 1);
+        assert_eq!(
+            receiver.get(0).unwrap().recovered.as_deref(),
+            Some(data.as_slice())
+        );
+        assert_eq!(receiver.received_bytes.values().sum::<usize>(), data.len());
+    }
+
+    #[test]
+    fn receiver_ignores_duplicates_at_the_exact_byte_limit() {
+        let data = vec![7; MAX_FILE_BYTES];
+        let packets = FilePacket::create_packets("limit.bin", &data, 1024);
+        let mut receiver = QrxReceiver::new();
+        for packet in &packets {
+            assert!(receiver.ingest_text(&packet.serialize()).unwrap());
+        }
+        assert!(!receiver.ingest_text(&packets[0].serialize()).unwrap());
+        assert!(receiver.is_complete(0));
+    }
+
+    #[test]
+    fn receiver_limits_and_metadata_do_not_corrupt_existing_transfers() {
+        let mut receiver = QrxReceiver::new();
+        assert!(!receiver.ingest_text("unrelated QR code").unwrap());
+        assert!(
+            receiver
+                .ingest_text(&format!("FQ1|{}", "x".repeat(MAX_PACKET_TEXT_BYTES)))
+                .is_err()
+        );
+        let packets = FilePacket::create_packets("safe.bin", &[42; 256], 128);
+        assert!(receiver.ingest_text(&packets[0].serialize()).unwrap());
+        let mut inconsistent = packets[1].clone();
+        inconsistent.parts = 3;
+        assert!(receiver.ingest_text(&inconsistent.serialize()).is_err());
+        assert!(receiver.ingest_text(&packets[1].serialize()).unwrap());
+        assert!(receiver.is_complete(0));
+        for index in 1..MAX_TRANSFERS {
+            let packet = FilePacket::create_packets(&format!("file{index}"), b"", 128).remove(0);
+            assert!(receiver.ingest_text(&packet.serialize()).unwrap());
+        }
+        let extra = FilePacket::create_packets("overflow", b"", 128).remove(0);
+        assert!(receiver.ingest_text(&extra.serialize()).is_err());
+        assert_eq!(receiver.file_count(), MAX_TRANSFERS);
+        let mut excessive = packets[0].clone();
+        excessive.parts = MAX_PARTS + 1;
+        assert!(receiver.ingest_text(&excessive.serialize()).is_err());
     }
 }
